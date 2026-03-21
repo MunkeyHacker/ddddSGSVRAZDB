@@ -18,9 +18,6 @@ local Players = game:GetService("Players")
 
 local player = Players.LocalPlayer
 
-
---// SETTINGS
-
 function module.setSpeed(v)
 	module.Speed = v
 end
@@ -28,9 +25,6 @@ end
 function module.setBoost(v)
 	module.Boost = v
 end
-
-
---// GET VEHICLE ROOT
 
 local function getRoot()
 
@@ -45,9 +39,6 @@ local function getRoot()
 	return hum.SeatPart.AssemblyRootPart
 
 end
-
-
---// MAIN LOOP
 
 RunService.Heartbeat:Connect(function()
 
@@ -96,9 +87,6 @@ RunService.Heartbeat:Connect(function()
 	
 end)
 
-
---// START / STOP
-
 function module.start()
 	module.Enabled = true
 end
@@ -112,9 +100,6 @@ function module.stop()
 	module.Root = nil
 	vel = Vector3.new()
 end
-
-
---// INPUT
 
 UIS.InputBegan:Connect(function(i,g)
 	if g then return end
