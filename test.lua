@@ -10,7 +10,7 @@ module.BG = nil
 module.Root = nil
 module.Move = {}
 
-local vel = Vector3.new(0,0,0)
+local vel = Vector3.new()
 
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
@@ -19,10 +19,18 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 
+--// SETTINGS
+
 function module.setSpeed(v)
 	module.Speed = v
 end
 
+function module.setBoost(v)
+	module.Boost = v
+end
+
+
+--// GET VEHICLE ROOT
 
 local function getRoot()
 
@@ -31,12 +39,15 @@ local function getRoot()
 	
 	local hum = char:FindFirstChildOfClass("Humanoid")
 	if not hum then return end
+	
 	if not hum.SeatPart then return end
 	
 	return hum.SeatPart.AssemblyRootPart
 
 end
 
+
+--// MAIN LOOP
 
 RunService.Heartbeat:Connect(function()
 
@@ -62,14 +73,15 @@ RunService.Heartbeat:Connect(function()
 	end
 	
 	local cam = workspace.CurrentCamera
-	local dir = Vector3.new(0,0,0)
 	
-	if module.Move.W then dir = dir + cam.CFrame.LookVector end
-	if module.Move.S then dir = dir - cam.CFrame.LookVector end
-	if module.Move.A then dir = dir - cam.CFrame.RightVector end
-	if module.Move.D then dir = dir + cam.CFrame.RightVector end
-	if module.Move.Space then dir = dir + Vector3.new(0,1,0) end
-	if module.Move.Ctrl then dir = dir - Vector3.new(0,1,0) end
+	local dir = Vector3.new()
+
+	if module.Move.W then dir += cam.CFrame.LookVector end
+	if module.Move.S then dir -= cam.CFrame.LookVector end
+	if module.Move.A then dir -= cam.CFrame.RightVector end
+	if module.Move.D then dir += cam.CFrame.RightVector end
+	if module.Move.Space then dir += Vector3.new(0,1,0) end
+	if module.Move.Ctrl then dir -= Vector3.new(0,1,0) end
 	
 	if dir.Magnitude > 1 then
 		dir = dir.Unit
@@ -85,10 +97,11 @@ RunService.Heartbeat:Connect(function()
 end)
 
 
+--// START / STOP
+
 function module.start()
 	module.Enabled = true
 end
-
 
 function module.stop()
 	module.Enabled = false
@@ -97,9 +110,11 @@ function module.stop()
 	if module.BG then module.BG:Destroy() end
 	
 	module.Root = nil
-	vel = Vector3.new(0,0,0)
+	vel = Vector3.new()
 end
 
+
+--// INPUT
 
 UIS.InputBegan:Connect(function(i,g)
 	if g then return end
