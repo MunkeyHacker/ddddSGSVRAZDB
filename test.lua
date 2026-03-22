@@ -31,17 +31,13 @@ function module.setBoost(v) module.Boost = v end
 function module.setAccel(v) module.Accel = v end
 
 local function cleanup()
-
     if BV then BV:Destroy() BV = nil end
     if BG then BG:Destroy() BG = nil end
-
     Root = nil
     vel = Vector3.zero
-
 end
 
 local function getVehicleRoot()
-
     local char = player.Character
     if not char then return end
 
@@ -51,11 +47,9 @@ local function getVehicleRoot()
     if not hum.SeatPart then return end
 
     return hum.SeatPart.AssemblyRootPart
-
 end
 
 function module.enable()
-
     if module.Enabled then return end
     module.Enabled = true
 
@@ -64,28 +58,30 @@ function module.enable()
         if not module.Enabled then return end
 
         local root = getVehicleRoot()
-        if not root then return end
+        if not root then
+            cleanup()
+            return
+        end
 
         if root ~= Root then
-
             cleanup()
 
             Root = root
 
             BV = Instance.new("BodyVelocity")
             BV.MaxForce = Vector3.new(1e9,1e9,1e9)
+            BV.Velocity = Vector3.zero
             BV.Parent = root
 
             BG = Instance.new("BodyGyro")
             BG.MaxTorque = Vector3.new(1e9,1e9,1e9)
             BG.P = 25000
             BG.D = 1200
+            BG.CFrame = workspace.CurrentCamera.CFrame
             BG.Parent = root
-
         end
 
         local cam = workspace.CurrentCamera
-
         local dir = Vector3.zero
 
         if Move.W then dir += cam.CFrame.LookVector end
@@ -100,23 +96,15 @@ function module.enable()
         end
 
         local spd = Move.Shift and module.Boost or module.Speed
-
         vel = vel:Lerp(dir * spd, module.Accel)
 
-        if BV then
-            BV.Velocity = vel
-        end
-
-        if BG then
-            BG.CFrame = cam.CFrame
-        end
+        if BV then BV.Velocity = vel end
+        if BG then BG.CFrame = cam.CFrame end
 
     end)
-
 end
 
 function module.disable()
-
     module.Enabled = false
 
     if Loop then
@@ -125,7 +113,6 @@ function module.disable()
     end
 
     cleanup()
-
 end
 
 UIS.InputBegan:Connect(function(i,g)
@@ -154,7 +141,7 @@ function module.init(ctx)
 
     local box = ctx.box
 
-    box:AddToggle("VFlyToggle",{Text="Enable Vehicle Fly"})
+    box:AddToggle("VFlyToggle",{Text="Enable Vehicle Fly", Default=false})
     Toggles.VFlyToggle:OnChanged(function(v)
         if v then module.enable() else module.disable() end
     end)
@@ -166,7 +153,6 @@ function module.init(ctx)
         Max=2000,
         Rounding=0
     })
-
     Options.VFlySpeed:OnChanged(function()
         module.setSpeed(Options.VFlySpeed.Value)
     end)
@@ -178,7 +164,6 @@ function module.init(ctx)
         Max=4000,
         Rounding=0
     })
-
     Options.VFlyBoost:OnChanged(function()
         module.setBoost(Options.VFlyBoost.Value)
     end)
@@ -190,7 +175,6 @@ function module.init(ctx)
         Max=0.5,
         Rounding=2
     })
-
     Options.VFlyAccel:OnChanged(function()
         module.setAccel(Options.VFlyAccel.Value)
     end)
@@ -203,9 +187,7 @@ function module.init(ctx)
     })
 
     Options.VFlyBind:OnClick(function()
-        Toggles.VFlyToggle:SetValue(
-            not Toggles.VFlyToggle.Value
-        )
+        Toggles.VFlyToggle:SetValue(not Toggles.VFlyToggle.Value)
     end)
 
 end
